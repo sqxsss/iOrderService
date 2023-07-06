@@ -1,6 +1,7 @@
 package com.example.iOrderService.service;
 
 import com.example.iOrderService.entity.OrderEntity;
+import com.example.iOrderService.external.client.ProductServiceFeignClient;
 import com.example.iOrderService.model.OrderRequest;
 import com.example.iOrderService.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -15,6 +16,9 @@ public class OrderServiceImpl implements OrderService{
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductServiceFeignClient productServiceFeignClient;
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {//TODO: make this method as transaction
@@ -34,7 +38,11 @@ public class OrderServiceImpl implements OrderService{
         log.info("OrderService: placeOrder save to order_db done");
 
         // call product service to check quantity and reduceQuantity if ok
+        log.info("ProductServiceFeignClient: reduce quantity start");
 
+        productServiceFeignClient.reduceQuantity(orderRequest.getProductId(), orderRequest.getOrderQuantity());
+
+        log.info("ProductServiceFeignClient: reduce quantity done");
 
         // call payment service to charge payment mode, mark order COMPLETED if success
         // , otherwise mark CANCELLED

@@ -32,7 +32,9 @@ public class OrderServiceImpl implements OrderService{
 
         orderEntity = orderRepository.save(orderEntity);
         log.info("OrderService: placeOrder save to order_db done");
+
         // call product service to check quantity and reduceQuantity if ok
+
 
         // call payment service to charge payment mode, mark order COMPLETED if success
         // , otherwise mark CANCELLED

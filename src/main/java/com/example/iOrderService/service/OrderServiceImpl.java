@@ -4,6 +4,7 @@ import com.example.iOrderService.entity.OrderEntity;
 import com.example.iOrderService.external.client.PaymentServiceFeignClient;
 import com.example.iOrderService.external.client.ProductServiceFeignClient;
 import com.example.iOrderService.model.OrderRequest;
+import com.example.iOrderService.model.OrderResponse;
 import com.example.iOrderService.model.PaymentRequest;
 import com.example.iOrderService.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -68,5 +69,22 @@ public class OrderServiceImpl implements OrderService{
         // , otherwise mark CANCELLED
 
         return orderEntity.getOrderId();
+    }
+
+    @Override
+    public OrderResponse getOrderDetailByOrderId(long orderId) {
+        log.info("OrderService: getOrderDetailByOrderId start with id: " + orderId);
+        OrderEntity orderEntity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("OrderService getOrderDetailByOrderId NOT FOUND FOR " + orderId));
+
+        OrderResponse orderResponse = OrderResponse.builder()
+                .orderId(orderEntity.getOrderId())
+                .totalAmount(orderEntity.getTotalAmount())
+                .orderDate(orderEntity.getOrderDate())
+                .orderStatus(orderEntity.getOrderStatus())
+                .build();
+        log.info("OrderService: getOrderDetailByOrderId done");
+
+        return orderResponse;
     }
 }

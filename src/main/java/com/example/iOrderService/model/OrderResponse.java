@@ -20,4 +20,43 @@ public class OrderResponse {
     private Instant orderDate;
 
     private String orderStatus;
+
+    private ProductResponse productResponse;
+
+    private PaymentResponse paymentResponse;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ProductResponse {
+
+        private long productId;
+
+        private String productName;
+
+        private long productPrice;
+
+        private long productQuantity;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class PaymentResponse {
+
+        private long paymentId;
+
+        private long orderId;
+
+        private String paymentStatus;
+
+        private PaymentMode paymentMode;
+
+        private long totalAmount;
+
+        private Instant paymentDate;
+    }
+
 }

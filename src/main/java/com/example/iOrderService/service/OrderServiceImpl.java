@@ -10,6 +10,7 @@ import com.example.iOrderService.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 
@@ -25,6 +26,9 @@ public class OrderServiceImpl implements OrderService{
 
     @Autowired
     private PaymentServiceFeignClient paymentServiceFeignClient;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {//TODO: make this method as transaction
@@ -77,12 +81,27 @@ public class OrderServiceImpl implements OrderService{
         OrderEntity orderEntity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("OrderService getOrderDetailByOrderId NOT FOUND FOR " + orderId));
 
+        log.info("OrderService RestCall ProductService getByProductId: " + orderEntity.getProductId());
+        OrderResponse.ProductResponse productResponse = restTemplate.getForObject(
+                "http://PRODUCT-SERVICE/products/"+orderEntity.getProductId(),
+                OrderResponse.ProductResponse.class
+        );
+
+        log.info("OrderService RestCall PaymentService getByOrderId: " + orderEntity.getOrderId());
+        OrderResponse.PaymentResponse paymentResponse = restTemplate.getForObject(
+                "http://PAYMENT-SERVICE/payments/"+orderEntity.getOrderId(),
+                OrderResponse.PaymentResponse.class
+        );
+
         OrderResponse orderResponse = OrderResponse.builder()
                 .orderId(orderEntity.getOrderId())
                 .totalAmount(orderEntity.getTotalAmount())
                 .orderDate(orderEntity.getOrderDate())
                 .orderStatus(orderEntity.getOrderStatus())
+                .productResponse(productResponse)
+                .paymentResponse(paymentResponse)
                 .build();
+
         log.info("OrderService: getOrderDetailByOrderId done");
 
         return orderResponse;
